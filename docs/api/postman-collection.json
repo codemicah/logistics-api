@@ -1358,6 +1358,40 @@
       "name": "Load Items",
       "item": [
         {
+          "name": "Create Load Item",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\":\"Container load item\",\"type\":\"FCL\",\"dangerousGoods\":false,\"specialInstructions\":\"Handle with care\",\"details\":{\"containerSize\":\"40ft\",\"containerType\":\"Standard\"}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads", ":loadId", "items"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "{{loadId}}",
+                  "description": "The ID of the shipment load"
+                }
+              ]
+            },
+            "description": "Create a new item for a shipment load"
+          }
+        },
+        {
           "name": "Get All Load Items",
           "request": {
             "method": "GET",
