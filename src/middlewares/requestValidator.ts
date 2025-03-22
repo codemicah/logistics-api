@@ -15,7 +15,7 @@ const validateRequest = async (
     extractedErrors.push(`${err.param} invalid`);
   });
 
-  return errorResponse(res, 400, { error: errors.array()[0] });
+  return errorResponse(res, 400, errors.array()[0].msg);
 };
 
 export default validateRequest;

@@ -1,0 +1,1883 @@
+{
+  "info": {
+    "name": "Logistics Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "API for managing shipments, shipment loads, and load items in a logistics system"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"shipper\",\n    \"profile\": {\n        \"name\": \"John Doe\",\n        \"company\": \"ACME Corp\",\n        \"contactNumber\": \"1234567890\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"shipper@example.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"shipper\",\n    \"profile\": {\n        \"name\": \"John Shipper\",\n        \"company\": \"Shipping Co\",\n        \"contactNumber\": \"1234567890\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "register"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n        \"email\": \"shipper@example.com\",\n        \"role\": \"shipper\",\n        \"id\": \"60d5f8b8a9aa7a1234567890\"\n    }\n}"
+            },
+            {
+              "name": "Email Already Exists",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"shipper\",\n    \"profile\": {\n        \"name\": \"John Doe\",\n        \"company\": \"ACME Corp\",\n        \"contactNumber\": \"1234567890\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "register"]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"User with this email already exists\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login and get authentication token"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n        \"email\": \"user@example.com\",\n        \"role\": \"shipper\",\n        \"id\": \"60d5f8b8a9aa7a1234567890\"\n    }\n}"
+            },
+            {
+              "name": "Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"wrongPassword\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Invalid email or password\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shipments",
+      "item": [
+        {
+          "name": "Get All Shipments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments"]
+            },
+            "description": "Get all shipments (filtered by user role)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"60d5f8b8a9aa7a1234567890\",\n            \"shipmentNumber\": \"SHP-123456-0001\",\n            \"origin\": \"New York, USA\",\n            \"destination\": \"Los Angeles, USA\",\n            \"status\": \"draft\",\n            \"shipperId\": \"60d5f8b8a9aa7a1234567891\",\n            \"forwarderId\": null,\n            \"client\": \"ACME Corp\",\n            \"transportMode\": \"FCL\",\n            \"estimatedDeparture\": \"2023-06-01T00:00:00.000Z\",\n            \"estimatedArrival\": \"2023-06-14T00:00:00.000Z\",\n            \"notes\": null,\n            \"createdAt\": \"2023-05-15T12:00:00.000Z\",\n            \"updatedAt\": \"2023-05-15T12:00:00.000Z\"\n        },\n        {\n            \"_id\": \"60d5f8b8a9aa7a1234567892\",\n            \"shipmentNumber\": \"SHP-123456-0002\",\n            \"origin\": \"London, UK\",\n            \"destination\": \"Paris, France\",\n            \"status\": \"submitted\",\n            \"shipperId\": \"60d5f8b8a9aa7a1234567891\",\n            \"forwarderId\": \"60d5f8b8a9aa7a1234567893\",\n            \"client\": \"Global Trading Ltd\",\n            \"transportMode\": \"AIR\",\n            \"estimatedDeparture\": \"2023-06-05T00:00:00.000Z\",\n            \"estimatedArrival\": \"2023-06-06T00:00:00.000Z\",\n            \"notes\": \"Fragile items included\",\n            \"createdAt\": \"2023-05-16T10:00:00.000Z\",\n            \"updatedAt\": \"2023-05-16T14:30:00.000Z\"\n        }\n    ]\n}"
+            },
+            {
+              "name": "Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Authentication token is required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"origin\": \"New York, USA\",\n    \"destination\": \"Los Angeles, USA\",\n    \"shipmentNumber\": \"SHP-220501-0001\",\n    \"client\": \"ACME Corp\",\n    \"transportMode\": \"FCL\",\n    \"estimatedDeparture\": \"2023-06-01T00:00:00.000Z\",\n    \"estimatedArrival\": \"2023-06-14T00:00:00.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments"]
+            },
+            "description": "Create a new shipment"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"origin\": \"New York, USA\",\n    \"destination\": \"Los Angeles, USA\",\n    \"shipmentNumber\": \"SHP-220501-0001\",\n    \"client\": \"ACME Corp\",\n    \"transportMode\": \"FCL\",\n    \"estimatedDeparture\": \"2023-06-01T00:00:00.000Z\",\n    \"estimatedArrival\": \"2023-06-14T00:00:00.000Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60d5f8b8a9aa7a1234567890\",\n        \"shipmentNumber\": \"SHP-220501-0001\",\n        \"origin\": \"New York, USA\",\n        \"destination\": \"Los Angeles, USA\",\n        \"status\": \"draft\",\n        \"shipperId\": \"60d5f8b8a9aa7a1234567891\",\n        \"forwarderId\": null,\n        \"client\": \"ACME Corp\",\n        \"transportMode\": \"FCL\",\n        \"estimatedDeparture\": \"2023-06-01T00:00:00.000Z\",\n        \"estimatedArrival\": \"2023-06-14T00:00:00.000Z\",\n        \"notes\": null,\n        \"createdAt\": \"2023-05-15T12:00:00.000Z\",\n        \"updatedAt\": \"2023-05-15T12:00:00.000Z\"\n    }\n}"
+            },
+            {
+              "name": "Invalid Input",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"origin\": \"New York, USA\"\n    /* Missing destination */\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Destination is required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Shipment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Get a shipment by ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60d5f8b8a9aa7a1234567890\",\n        \"shipmentNumber\": \"SHP-123456-0001\",\n        \"origin\": \"New York, USA\",\n        \"destination\": \"Los Angeles, USA\",\n        \"status\": \"draft\",\n        \"shipperId\": \"60d5f8b8a9aa7a1234567891\",\n        \"forwarderId\": null,\n        \"client\": \"ACME Corp\",\n        \"transportMode\": \"FCL\",\n        \"estimatedDeparture\": \"2023-06-01T00:00:00.000Z\",\n        \"estimatedArrival\": \"2023-06-14T00:00:00.000Z\",\n        \"notes\": null,\n        \"createdAt\": \"2023-05-15T12:00:00.000Z\",\n        \"updatedAt\": \"2023-05-15T12:00:00.000Z\"\n    }\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Shipment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"origin\": \"New York, USA\",\n    \"destination\": \"San Francisco, USA\",\n    \"notes\": \"Updated shipment details\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Update a shipment"
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Shipment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id", "submit"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Submit a shipment for processing"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Forwarder",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"forwarderId\": \"{{forwarderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id/assign-forwarder",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id", "assign-forwarder"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Assign a forwarder to a shipment (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shipment Status",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"in_progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Update the status of a shipment"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shipment by ID",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"destination\": \"San Francisco, USA\",\n    \"client\": \"ACME Corp Updated\",\n    \"status\": \"submitted\",\n    \"forwarderId\": \"60d5f8b8a9aa7a1234567893\",\n    \"notes\": \"Updated shipment information\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment to update"
+                }
+              ]
+            },
+            "description": "Update a shipment by ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"destination\": \"San Francisco, USA\",\n    \"client\": \"ACME Corp Updated\",\n    \"status\": \"submitted\",\n    \"forwarderId\": \"60d5f8b8a9aa7a1234567893\",\n    \"notes\": \"Updated shipment information\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60d5f8b8a9aa7a1234567890\",\n        \"shipmentNumber\": \"SHP-123456-0001\",\n        \"origin\": \"New York, USA\",\n        \"destination\": \"San Francisco, USA\",\n        \"status\": \"submitted\",\n        \"shipperId\": \"60d5f8b8a9aa7a1234567891\",\n        \"forwarderId\": \"60d5f8b8a9aa7a1234567893\",\n        \"client\": \"ACME Corp Updated\",\n        \"transportMode\": \"FCL\",\n        \"estimatedDeparture\": \"2023-06-01T00:00:00.000Z\",\n        \"estimatedArrival\": \"2023-06-14T00:00:00.000Z\",\n        \"notes\": \"Updated shipment information\",\n        \"createdAt\": \"2023-05-15T12:00:00.000Z\",\n        \"updatedAt\": \"2023-05-16T14:30:00.000Z\"\n    }\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"destination\": \"San Francisco, USA\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Shipment by ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment to delete"
+                }
+              ]
+            },
+            "description": "Delete a shipment by ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Shipment deleted successfully\"\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shipment Loads",
+      "item": [
+        {
+          "name": "Get Shipment Loads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Get all loads for a shipment"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"60d5f8b8a9aa7a1234567894\",\n            \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n            \"containerNumber\": \"CONT-001\",\n            \"containerType\": \"40GP\",\n            \"sealNumber\": \"SEAL-123456\",\n            \"description\": \"Electronics shipment\",\n            \"status\": \"pending\",\n            \"createdAt\": \"2023-05-15T12:30:00.000Z\",\n            \"updatedAt\": \"2023-05-15T12:30:00.000Z\"\n        },\n        {\n            \"_id\": \"60d5f8b8a9aa7a1234567895\",\n            \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n            \"containerNumber\": \"CONT-002\",\n            \"containerType\": \"20GP\",\n            \"sealNumber\": \"SEAL-789012\",\n            \"description\": \"Clothing shipment\",\n            \"status\": \"pending\",\n            \"createdAt\": \"2023-05-15T12:35:00.000Z\",\n            \"updatedAt\": \"2023-05-15T12:35:00.000Z\"\n        }\n    ]\n}"
+            },
+            {
+              "name": "Shipment Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Shipment Load",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"containerNumber\": \"CONT-003\",\n    \"containerType\": \"40HC\",\n    \"sealNumber\": \"SEAL-456789\",\n    \"description\": \"Furniture shipment\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                }
+              ]
+            },
+            "description": "Create a new load for a shipment"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"containerNumber\": \"CONT-003\",\n    \"containerType\": \"40HC\",\n    \"sealNumber\": \"SEAL-456789\",\n    \"description\": \"Furniture shipment\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    }
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60d5f8b8a9aa7a1234567896\",\n        \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n        \"containerNumber\": \"CONT-003\",\n        \"containerType\": \"40HC\",\n        \"sealNumber\": \"SEAL-456789\",\n        \"description\": \"Furniture shipment\",\n        \"status\": \"pending\",\n        \"createdAt\": \"2023-05-16T10:00:00.000Z\",\n        \"updatedAt\": \"2023-05-16T10:00:00.000Z\"\n    }\n}"
+            },
+            {
+              "name": "Invalid Input",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"containerType\": \"40HC\"\n    /* Missing required fields */\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Container number is required\"\n}"
+            },
+            {
+              "name": "Shipment Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"containerNumber\": \"CONT-003\",\n    \"containerType\": \"40HC\",\n    \"sealNumber\": \"SEAL-456789\",\n    \"description\": \"Furniture shipment\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Shipment Load by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "{{loadId}}",
+                  "description": "The ID of the shipment load"
+                }
+              ]
+            },
+            "description": "Get a shipment load by ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a1234567894"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60d5f8b8a9aa7a1234567894\",\n        \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n        \"containerNumber\": \"CONT-001\",\n        \"containerType\": \"40GP\",\n        \"sealNumber\": \"SEAL-123456\",\n        \"description\": \"Electronics shipment\",\n        \"status\": \"pending\",\n        \"createdAt\": \"2023-05-15T12:30:00.000Z\",\n        \"updatedAt\": \"2023-05-15T12:30:00.000Z\"\n    }\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment load with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Shipment Load",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"containerType\": \"20GP\",\n    \"sealNumber\": \"SEAL-UPDATED\",\n    \"description\": \"Updated description\",\n    \"status\": \"approved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "{{loadId}}",
+                  "description": "The ID of the shipment load"
+                }
+              ]
+            },
+            "description": "Update a shipment load"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"containerType\": \"20GP\",\n    \"sealNumber\": \"SEAL-UPDATED\",\n    \"description\": \"Updated description\",\n    \"status\": \"approved\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a1234567894"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60d5f8b8a9aa7a1234567894\",\n        \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n        \"containerNumber\": \"CONT-001\",\n        \"containerType\": \"20GP\",\n        \"sealNumber\": \"SEAL-UPDATED\",\n        \"description\": \"Updated description\",\n        \"status\": \"approved\",\n        \"createdAt\": \"2023-05-15T12:30:00.000Z\",\n        \"updatedAt\": \"2023-05-16T15:00:00.000Z\"\n    }\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"containerType\": \"20GP\",\n    \"status\": \"approved\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment load with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Shipment Load",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "{{loadId}}",
+                  "description": "The ID of the shipment load"
+                }
+              ]
+            },
+            "description": "Delete a shipment load"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a1234567894"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Shipment load deleted successfully\"\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["shipments", ":shipmentId", "loads", ":loadId"],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment load with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Load Items",
+      "item": [
+        {
+          "name": "Get All Load Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipments", ":shipmentId", "loads", ":loadId", "items"],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "{{shipmentId}}",
+                  "description": "The ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "{{loadId}}",
+                  "description": "The ID of the shipment load"
+                }
+              ]
+            },
+            "description": "Get all load items for a shipment load"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a1234567894"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"60d5f8b8a9aa7a1234567897\",\n            \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n            \"loadId\": \"60d5f8b8a9aa7a1234567894\",\n            \"description\": \"Laptop computers\",\n            \"quantity\": 100,\n            \"weight\": 500,\n            \"volume\": 2.5,\n            \"value\": 150000,\n            \"hazardous\": false,\n            \"type\": \"FCL\",\n            \"details\": {\n                \"containerSize\": \"40ft\",\n                \"containerNumber\": \"CONT-001\",\n                \"sealNumber\": \"SEAL-001\"\n            },\n            \"createdAt\": \"2023-05-15T13:00:00.000Z\",\n            \"updatedAt\": \"2023-05-15T13:00:00.000Z\"\n        },\n        {\n            \"_id\": \"60d5f8b8a9aa7a1234567898\",\n            \"shipmentId\": \"60d5f8b8a9aa7a1234567890\",\n            \"loadId\": \"60d5f8b8a9aa7a1234567894\",\n            \"description\": \"Desktop computers\",\n            \"quantity\": 50,\n            \"weight\": 1000,\n            \"volume\": 5.0,\n            \"value\": 75000,\n            \"hazardous\": false,\n            \"type\": \"FCL\",\n            \"details\": {\n                \"containerSize\": \"40ft\",\n                \"containerNumber\": \"CONT-001\",\n                \"sealNumber\": \"SEAL-001\"\n            },\n            \"createdAt\": \"2023-05-15T13:10:00.000Z\",\n            \"updatedAt\": \"2023-05-15T13:10:00.000Z\"\n        }\n    ]\n}"
+            },
+            {
+              "name": "Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60d5f8b8a9aa7a1234567890"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Shipment load with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Load Item by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "shipments",
+                ":shipmentId",
+                "loads",
+                ":loadId",
+                "items",
+                ":itemId"
+              ],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "60a23f5e0c4d7a3a5c9b2d1e",
+                  "description": "ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "60c12f5e0c4d7a3a5c9b2d1f",
+                  "description": "ID of the shipment load"
+                },
+                {
+                  "key": "itemId",
+                  "value": "60e45f5e0c4d7a3a5c9b2d1g",
+                  "description": "ID of the load item"
+                }
+              ]
+            },
+            "description": "Retrieve a specific load item by its ID"
+          },
+          "response": [
+            {
+              "name": "Success Response (FCL)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items",
+                    ":itemId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60a23f5e0c4d7a3a5c9b2d1e"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60c12f5e0c4d7a3a5c9b2d1f"
+                    },
+                    {
+                      "key": "itemId",
+                      "value": "60e45f5e0c4d7a3a5c9b2d1g"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60e45f5e0c4d7a3a5c9b2d1g\",\n        \"shipmentId\": \"60a23f5e0c4d7a3a5c9b2d1e\",\n        \"loadId\": \"60c12f5e0c4d7a3a5c9b2d1f\",\n        \"description\": \"Electronics for retail store\",\n        \"quantity\": 1,\n        \"weight\": 12500,\n        \"volume\": 33.2,\n        \"value\": 45000,\n        \"hazardous\": false,\n        \"type\": \"FCL\",\n        \"details\": {\n            \"containerSize\": \"40ft\",\n            \"containerType\": \"Standard\",\n            \"seal\": \"SL12345678\"\n        },\n        \"createdAt\": \"2023-08-01T14:30:45.123Z\",\n        \"updatedAt\": \"2023-08-01T14:30:45.123Z\"\n    }\n}"
+            },
+            {
+              "name": "Item Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items",
+                    ":itemId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60a23f5e0c4d7a3a5c9b2d1e"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60c12f5e0c4d7a3a5c9b2d1f"
+                    },
+                    {
+                      "key": "itemId",
+                      "value": "60d5f8b8a9aa7a9999999999"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Load item with ID 60d5f8b8a9aa7a9999999999 not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Load Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "shipments",
+                ":shipmentId",
+                "loads",
+                ":loadId",
+                "items",
+                ":itemId"
+              ],
+              "variable": [
+                {
+                  "key": "shipmentId",
+                  "value": "60a23f5e0c4d7a3a5c9b2d1e",
+                  "description": "ID of the shipment"
+                },
+                {
+                  "key": "loadId",
+                  "value": "60c12f5e0c4d7a3a5c9b2d1f",
+                  "description": "ID of the shipment load"
+                },
+                {
+                  "key": "itemId",
+                  "value": "60e45f5e0c4d7a3a5c9b2d1g",
+                  "description": "ID of the load item"
+                }
+              ]
+            },
+            "description": "Delete a specific load item by its ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"description\": \"Updated electronics for retail store\",\n    \"quantity\": 1,\n    \"weight\": 13000,\n    \"volume\": 35.5,\n    \"value\": 48000,\n    \"hazardous\": false,\n    \"type\": \"FCL\",\n    \"details\": {\n        \"containerSize\": \"40ft\",\n        \"containerType\": \"Standard\",\n        \"seal\": \"SL87654321\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items",
+                    ":itemId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60a23f5e0c4d7a3a5c9b2d1e"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60c12f5e0c4d7a3a5c9b2d1f"
+                    },
+                    {
+                      "key": "itemId",
+                      "value": "60e45f5e0c4d7a3a5c9b2d1g"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"60e45f5e0c4d7a3a5c9b2d1g\",\n        \"shipmentId\": \"60a23f5e0c4d7a3a5c9b2d1e\",\n        \"loadId\": \"60c12f5e0c4d7a3a5c9b2d1f\",\n        \"description\": \"Updated electronics for retail store\",\n        \"quantity\": 1,\n        \"weight\": 13000,\n        \"volume\": 35.5,\n        \"value\": 48000,\n        \"hazardous\": false,\n        \"type\": \"FCL\",\n        \"details\": {\n            \"containerSize\": \"40ft\",\n            \"containerType\": \"Standard\",\n            \"seal\": \"SL87654321\"\n        },\n        \"createdAt\": \"2023-08-01T14:30:45.123Z\",\n        \"updatedAt\": \"2023-08-01T15:45:12.456Z\"\n    }\n}"
+            },
+            {
+              "name": "Invalid Input",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"description\": \"Updated electronics for retail store\",\n    \"quantity\": 1,\n    \"weight\": -500,\n    \"volume\": 35.5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items",
+                    ":itemId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60a23f5e0c4d7a3a5c9b2d1e"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60c12f5e0c4d7a3a5c9b2d1f"
+                    },
+                    {
+                      "key": "itemId",
+                      "value": "60e45f5e0c4d7a3a5c9b2d1g"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"error\": \"Weight must be a positive number\"\n}"
+            },
+            {
+              "name": "Item Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"description\": \"Updated electronics for retail store\",\n    \"quantity\": 1,\n    \"weight\": 13000,\n    \"volume\": 35.5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/shipments/:shipmentId/loads/:loadId/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": [
+                    "shipments",
+                    ":shipmentId",
+                    "loads",
+                    ":loadId",
+                    "items",
+                    ":itemId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "shipmentId",
+                      "value": "60a23f5e0c4d7a3a5c9b2d1e"
+                    },
+                    {
+                      "key": "loadId",
+                      "value": "60c12f5e0c4d7a3a5c9b2d1f"
+                    },
+                    {
+                      "key": "itemId",
+                      "value": "60e45f5e0c4d7a3a5c9b2d99"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"error\": \"Load item with ID 60e45f5e0c4d7a3a5c9b2d99 not found\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string",
+      "description": "Base URL for the API"
+    },
+    {
+      "key": "shipmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "loadId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "forwarderId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  }
+}

@@ -1,0 +1,2552 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Logistics Backend API",
+    "description": "API for managing shipments, shipment loads, and load items in a logistics system",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Authentication operations"
+    },
+    {
+      "name": "Shipments",
+      "description": "Shipment operations"
+    },
+    {
+      "name": "ShipmentLoads",
+      "description": "Shipment load operations"
+    },
+    {
+      "name": "LoadItems",
+      "description": "Load item operations"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["shipper", "forwarder", "admin"]
+          },
+          "profile": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "company": {
+                "type": "string"
+              },
+              "contactNumber": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Shipment": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "shipmentNumber": {
+            "type": "string",
+            "description": "Unique identifier for the shipment"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "confirmed",
+              "in_progress",
+              "delivered",
+              "cancelled"
+            ]
+          },
+          "shipperId": {
+            "type": "string"
+          },
+          "forwarderId": {
+            "type": "string"
+          },
+          "client": {
+            "type": "string",
+            "description": "Client name"
+          },
+          "transportMode": {
+            "type": "string",
+            "enum": ["FCL", "LCL", "RORO", "AIR"]
+          },
+          "estimatedDeparture": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estimatedArrival": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ShipmentLoad": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "shipmentId": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "containerNumber": {
+            "type": "string",
+            "description": "Container number for the load"
+          },
+          "containerSize": {
+            "type": "string",
+            "description": "Size of the container (e.g., 20ft, 40ft)"
+          },
+          "containerType": {
+            "type": "string",
+            "description": "Type of the container (e.g., Dry, Reefer, High Cube)"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight of the load in kg"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the load contents"
+          },
+          "pickupAddress": {
+            "type": "string",
+            "description": "Address for pickup"
+          },
+          "deliveryAddress": {
+            "type": "string",
+            "description": "Address for delivery"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "loading", "loaded", "unloading", "delivered"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LoadItem": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "shipmentLoadId": {
+            "type": "string"
+          },
+          "loadId": {
+            "type": "string",
+            "description": "Alternative reference to shipmentLoadId for compatibility"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the item"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity of items"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight of the item in kg"
+          },
+          "volume": {
+            "type": "number",
+            "description": "Volume of the item in cubic meters"
+          },
+          "value": {
+            "type": "number",
+            "description": "Value of the item"
+          },
+          "hazardous": {
+            "type": "boolean",
+            "description": "Whether the item contains hazardous materials"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["FCL", "LCL", "RORO", "AIR"],
+            "description": "Type of load item"
+          },
+          "details": {
+            "type": "object",
+            "description": "Type-specific details of the item"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["shipper", "forwarder", "admin"]
+                  },
+                  "profile": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "company": {
+                        "type": "string"
+                      },
+                      "contactNumber": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["name"]
+                  }
+                },
+                "required": ["email", "password", "role", "profile"]
+              },
+              "examples": {
+                "shipper": {
+                  "value": {
+                    "email": "shipper@example.com",
+                    "password": "Password123!",
+                    "role": "shipper",
+                    "profile": {
+                      "name": "John Shipper",
+                      "company": "Shipping Co",
+                      "contactNumber": "1234567890"
+                    }
+                  }
+                },
+                "forwarder": {
+                  "value": {
+                    "email": "forwarder@example.com",
+                    "password": "Password123!",
+                    "role": "forwarder",
+                    "profile": {
+                      "name": "Jane Forwarder",
+                      "company": "Forwarding Co",
+                      "contactNumber": "0987654321"
+                    }
+                  }
+                },
+                "admin": {
+                  "value": {
+                    "email": "admin@example.com",
+                    "password": "Password123!",
+                    "role": "admin",
+                    "profile": {
+                      "name": "Admin User",
+                      "company": "Logistics Admin",
+                      "contactNumber": "5555555555"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": ["shipper", "forwarder", "admin"]
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "email": "shipper@example.com",
+                        "role": "shipper",
+                        "id": "60d5f8b8a9aa7a1234567890"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missingFields": {
+                    "value": {
+                      "success": false,
+                      "message": "Missing required fields"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already exists",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "duplicateEmail": {
+                    "value": {
+                      "success": false,
+                      "message": "User with this email already exists"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              },
+              "examples": {
+                "login": {
+                  "value": {
+                    "email": "shipper@example.com",
+                    "password": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": ["shipper", "forwarder", "admin"]
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "email": "shipper@example.com",
+                        "role": "shipper",
+                        "id": "60d5f8b8a9aa7a1234567890"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalidCredentials": {
+                    "value": {
+                      "success": false,
+                      "message": "Invalid email or password"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments": {
+      "get": {
+        "tags": ["Shipments"],
+        "summary": "Get all shipments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of shipments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Shipment"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "shipments": {
+                    "value": {
+                      "success": true,
+                      "data": [
+                        {
+                          "_id": "60d5f8b8a9aa7a1234567890",
+                          "shipmentNumber": "SHP-123456-0001",
+                          "origin": "New York, USA",
+                          "destination": "Los Angeles, USA",
+                          "status": "draft",
+                          "shipperId": "60d5f8b8a9aa7a1234567891",
+                          "forwarderId": null,
+                          "client": "ACME Corp",
+                          "transportMode": "FCL",
+                          "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                          "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                          "notes": null,
+                          "createdAt": "2023-05-15T12:00:00.000Z",
+                          "updatedAt": "2023-05-15T12:00:00.000Z"
+                        },
+                        {
+                          "_id": "60d5f8b8a9aa7a1234567892",
+                          "shipmentNumber": "SHP-123456-0002",
+                          "origin": "London, UK",
+                          "destination": "Paris, France",
+                          "status": "submitted",
+                          "shipperId": "60d5f8b8a9aa7a1234567891",
+                          "forwarderId": "60d5f8b8a9aa7a1234567893",
+                          "client": "Global Trading Ltd",
+                          "transportMode": "AIR",
+                          "estimatedDeparture": "2023-06-05T00:00:00.000Z",
+                          "estimatedArrival": "2023-06-06T00:00:00.000Z",
+                          "notes": "Fragile items included",
+                          "createdAt": "2023-05-16T10:00:00.000Z",
+                          "updatedAt": "2023-05-16T14:30:00.000Z"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shipments"],
+        "summary": "Create a new shipment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string"
+                  },
+                  "destination": {
+                    "type": "string"
+                  },
+                  "shipmentNumber": {
+                    "type": "string"
+                  },
+                  "estimatedDeparture": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "estimatedArrival": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "client": {
+                    "type": "string"
+                  },
+                  "transportMode": {
+                    "type": "string",
+                    "enum": ["FCL", "LCL", "RORO", "AIR"]
+                  }
+                },
+                "required": ["origin", "destination"]
+              },
+              "examples": {
+                "new_shipment": {
+                  "value": {
+                    "origin": "New York, USA",
+                    "destination": "Los Angeles, USA",
+                    "shipmentNumber": "SHP-123456-0001",
+                    "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                    "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                    "client": "ACME Corp",
+                    "transportMode": "FCL"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shipment created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                },
+                "examples": {
+                  "created": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567890",
+                        "shipmentNumber": "SHP-123456-0001",
+                        "origin": "New York, USA",
+                        "destination": "Los Angeles, USA",
+                        "status": "draft",
+                        "shipperId": "60d5f8b8a9aa7a1234567891",
+                        "forwarderId": null,
+                        "client": "ACME Corp",
+                        "transportMode": "FCL",
+                        "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                        "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                        "notes": null,
+                        "createdAt": "2023-05-15T12:00:00.000Z",
+                        "updatedAt": "2023-05-15T12:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missing_destination": {
+                    "value": {
+                      "success": false,
+                      "message": "Destination is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{id}": {
+      "get": {
+        "tags": ["Shipments"],
+        "summary": "Get a shipment by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                },
+                "examples": {
+                  "shipment": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567890",
+                        "shipmentNumber": "SHP-123456-0001",
+                        "origin": "New York, USA",
+                        "destination": "Los Angeles, USA",
+                        "status": "draft",
+                        "shipperId": "60d5f8b8a9aa7a1234567891",
+                        "forwarderId": null,
+                        "client": "ACME Corp",
+                        "transportMode": "FCL",
+                        "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                        "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                        "notes": null,
+                        "createdAt": "2023-05-15T12:00:00.000Z",
+                        "updatedAt": "2023-05-15T12:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Shipments"],
+        "summary": "Update a shipment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string"
+                  },
+                  "destination": {
+                    "type": "string"
+                  },
+                  "shipmentNumber": {
+                    "type": "string"
+                  },
+                  "estimatedDeparture": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "estimatedArrival": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              },
+              "examples": {
+                "update_shipment": {
+                  "value": {
+                    "destination": "San Francisco, USA",
+                    "notes": "Some additional notes"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shipment updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                },
+                "examples": {
+                  "updated": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567890",
+                        "shipmentNumber": "SHP-123456-0001",
+                        "origin": "New York, USA",
+                        "destination": "San Francisco, USA",
+                        "status": "draft",
+                        "shipperId": "60d5f8b8a9aa7a1234567891",
+                        "forwarderId": null,
+                        "client": "ACME Corp",
+                        "transportMode": "FCL",
+                        "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                        "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                        "notes": "Some additional notes",
+                        "createdAt": "2023-05-15T12:00:00.000Z",
+                        "updatedAt": "2023-05-15T14:30:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalid_data": {
+                    "value": {
+                      "success": false,
+                      "message": "Invalid input data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{id}/submit": {
+      "put": {
+        "tags": ["Shipments"],
+        "summary": "Submit a shipment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                },
+                "examples": {
+                  "submitted": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567890",
+                        "shipmentNumber": "SHP-123456-0001",
+                        "origin": "New York, USA",
+                        "destination": "Los Angeles, USA",
+                        "status": "submitted",
+                        "shipperId": "60d5f8b8a9aa7a1234567891",
+                        "forwarderId": null,
+                        "client": "ACME Corp",
+                        "transportMode": "FCL",
+                        "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                        "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                        "notes": null,
+                        "createdAt": "2023-05-15T12:00:00.000Z",
+                        "updatedAt": "2023-05-15T15:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{id}/assign-forwarder": {
+      "put": {
+        "tags": ["Shipments"],
+        "summary": "Assign a forwarder to a shipment (admin only)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "forwarderId": {
+                    "type": "string"
+                  }
+                },
+                "required": ["forwarderId"]
+              },
+              "examples": {
+                "assign_forwarder": {
+                  "value": {
+                    "forwarderId": "60d5f8b8a9aa7a1234567893"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Forwarder assigned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                },
+                "examples": {
+                  "assigned": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567890",
+                        "shipmentNumber": "SHP-123456-0001",
+                        "origin": "New York, USA",
+                        "destination": "Los Angeles, USA",
+                        "status": "submitted",
+                        "shipperId": "60d5f8b8a9aa7a1234567891",
+                        "forwarderId": "60d5f8b8a9aa7a1234567893",
+                        "client": "ACME Corp",
+                        "transportMode": "FCL",
+                        "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                        "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                        "notes": null,
+                        "createdAt": "2023-05-15T12:00:00.000Z",
+                        "updatedAt": "2023-05-15T16:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "forbidden": {
+                    "value": {
+                      "success": false,
+                      "message": "Admin role required for this operation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{id}/status": {
+      "put": {
+        "tags": ["Shipments"],
+        "summary": "Update shipment status",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "submitted",
+                      "confirmed",
+                      "in_progress",
+                      "delivered",
+                      "cancelled"
+                    ]
+                  }
+                },
+                "required": ["status"]
+              },
+              "examples": {
+                "update_status": {
+                  "value": {
+                    "status": "in_progress"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shipment status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                },
+                "examples": {
+                  "status_updated": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567890",
+                        "shipmentNumber": "SHP-123456-0001",
+                        "origin": "New York, USA",
+                        "destination": "Los Angeles, USA",
+                        "status": "in_progress",
+                        "shipperId": "60d5f8b8a9aa7a1234567891",
+                        "forwarderId": "60d5f8b8a9aa7a1234567893",
+                        "client": "ACME Corp",
+                        "transportMode": "FCL",
+                        "estimatedDeparture": "2023-06-01T00:00:00.000Z",
+                        "estimatedArrival": "2023-06-14T00:00:00.000Z",
+                        "notes": null,
+                        "createdAt": "2023-05-15T12:00:00.000Z",
+                        "updatedAt": "2023-05-15T17:30:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalid_status": {
+                    "value": {
+                      "success": false,
+                      "message": "Invalid status value"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/loads": {
+      "get": {
+        "tags": ["ShipmentLoads"],
+        "summary": "Get all loads for a shipment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of shipment loads",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShipmentLoad"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "loads": {
+                    "value": {
+                      "success": true,
+                      "data": [
+                        {
+                          "_id": "60d5f8b8a9aa7a1234567894",
+                          "shipmentId": "60d5f8b8a9aa7a1234567890",
+                          "reference": "LOAD-123456",
+                          "containerNumber": "MSCU1234567",
+                          "containerSize": "40ft",
+                          "containerType": "High Cube",
+                          "weight": 15000,
+                          "description": "Electronics shipment",
+                          "pickupAddress": "123 Pickup St, City",
+                          "deliveryAddress": "456 Delivery Ave, Town",
+                          "status": "pending",
+                          "createdAt": "2023-05-15T13:00:00.000Z",
+                          "updatedAt": "2023-05-15T13:00:00.000Z"
+                        },
+                        {
+                          "_id": "60d5f8b8a9aa7a1234567895",
+                          "shipmentId": "60d5f8b8a9aa7a1234567890",
+                          "reference": "LOAD-123457",
+                          "containerNumber": "MSCU7654321",
+                          "containerSize": "20ft",
+                          "containerType": "Standard",
+                          "weight": 8000,
+                          "description": "Furniture shipment",
+                          "pickupAddress": "789 Pickup Ave, City",
+                          "deliveryAddress": "101 Delivery St, Town",
+                          "status": "pending",
+                          "createdAt": "2023-05-15T13:30:00.000Z",
+                          "updatedAt": "2023-05-15T13:30:00.000Z"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ShipmentLoads"],
+        "summary": "Create a new shipment load",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reference": {
+                    "type": "string"
+                  },
+                  "containerNumber": {
+                    "type": "string"
+                  },
+                  "containerSize": {
+                    "type": "string"
+                  },
+                  "containerType": {
+                    "type": "string"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "pickupAddress": {
+                    "type": "string"
+                  },
+                  "deliveryAddress": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "loading",
+                      "loaded",
+                      "unloading",
+                      "delivered"
+                    ]
+                  }
+                },
+                "required": ["reference"]
+              },
+              "examples": {
+                "new_load": {
+                  "value": {
+                    "reference": "LOAD-123456",
+                    "transportMode": "FCL",
+                    "pickupAddress": "Singapore Port",
+                    "deliveryAddress": "Bangkok Port, Thailand",
+                    "containerNumber": "CONT12345678",
+                    "containerSize": "40ft",
+                    "containerType": "Standard",
+                    "weight": 20000,
+                    "description": "Electronic equipment"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shipment load created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ShipmentLoad"
+                    }
+                  }
+                },
+                "examples": {
+                  "created": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567894",
+                        "shipmentId": "60d5f8b8a9aa7a1234567890",
+                        "reference": "LOAD-123456",
+                        "transportMode": "FCL",
+                        "pickupAddress": "Singapore Port",
+                        "deliveryAddress": "Bangkok Port, Thailand",
+                        "containerNumber": "CONT12345678",
+                        "containerSize": "40ft",
+                        "containerType": "Standard",
+                        "weight": 20000,
+                        "description": "Electronic equipment",
+                        "status": "pending",
+                        "createdAt": "2023-05-15T13:00:00.000Z",
+                        "updatedAt": "2023-05-15T13:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missing_reference": {
+                    "value": {
+                      "success": false,
+                      "message": "Reference is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/loads/{loadId}": {
+      "get": {
+        "tags": ["ShipmentLoads"],
+        "summary": "Get a shipment load by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment load found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ShipmentLoad"
+                    }
+                  }
+                },
+                "examples": {
+                  "load": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567894",
+                        "shipmentId": "60d5f8b8a9aa7a1234567890",
+                        "reference": "LOAD-123456",
+                        "containerNumber": "MSCU1234567",
+                        "containerSize": "40ft",
+                        "containerType": "High Cube",
+                        "weight": 15000,
+                        "description": "Electronics shipment",
+                        "pickupAddress": "123 Pickup St, City",
+                        "deliveryAddress": "456 Delivery Ave, Town",
+                        "status": "pending",
+                        "createdAt": "2023-05-15T13:00:00.000Z",
+                        "updatedAt": "2023-05-15T13:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment load not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment Load with ID 60d5f8b8a9aa7a1234567894 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["ShipmentLoads"],
+        "summary": "Update a shipment load",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reference": {
+                    "type": "string"
+                  },
+                  "containerNumber": {
+                    "type": "string"
+                  },
+                  "containerSize": {
+                    "type": "string"
+                  },
+                  "containerType": {
+                    "type": "string"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "pickupAddress": {
+                    "type": "string"
+                  },
+                  "deliveryAddress": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "loading",
+                      "loaded",
+                      "unloading",
+                      "delivered"
+                    ]
+                  }
+                }
+              },
+              "examples": {
+                "update_load": {
+                  "value": {
+                    "weight": 16000,
+                    "description": "Updated electronics shipment"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shipment load updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ShipmentLoad"
+                    }
+                  }
+                },
+                "examples": {
+                  "updated": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567894",
+                        "shipmentId": "60d5f8b8a9aa7a1234567890",
+                        "reference": "LOAD-123456",
+                        "containerNumber": "MSCU1234567",
+                        "containerSize": "40ft",
+                        "containerType": "High Cube",
+                        "weight": 16000,
+                        "description": "Updated electronics shipment",
+                        "pickupAddress": "123 Pickup St, City",
+                        "deliveryAddress": "456 Delivery Ave, Town",
+                        "status": "pending",
+                        "createdAt": "2023-05-15T13:00:00.000Z",
+                        "updatedAt": "2023-05-15T14:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalid_data": {
+                    "value": {
+                      "success": false,
+                      "message": "Invalid input data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment load not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment Load with ID 60d5f8b8a9aa7a1234567894 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["ShipmentLoads"],
+        "summary": "Delete a shipment load",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment load deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "deleted": {
+                    "value": {
+                      "success": true,
+                      "message": "Shipment load deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment load not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment Load with ID 60d5f8b8a9aa7a1234567894 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/loads/{loadId}/items": {
+      "post": {
+        "tags": ["LoadItems"],
+        "summary": "Create a new load item",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "volume": {
+                    "type": "number"
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "hazardous": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["FCL", "LCL", "RORO", "AIR"]
+                  },
+                  "details": {
+                    "type": "object"
+                  }
+                },
+                "required": ["type", "details"]
+              },
+              "examples": {
+                "fcl_item": {
+                  "value": {
+                    "description": "Container load item",
+                    "type": "FCL",
+                    "dangerousGoods": false,
+                    "specialInstructions": "Handle with care",
+                    "details": {
+                      "containerSize": "40ft",
+                      "containerType": "Standard"
+                    }
+                  }
+                },
+                "lcl_item": {
+                  "value": {
+                    "description": "Machinery parts",
+                    "type": "LCL",
+                    "dangerousGoods": false,
+                    "details": {
+                      "weight": 2500,
+                      "cbm": 5.5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Load item created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoadItem"
+                    }
+                  }
+                },
+                "examples": {
+                  "created": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567896",
+                        "shipmentLoadId": "60d5f8b8a9aa7a1234567894",
+                        "loadId": "60d5f8b8a9aa7a1234567894",
+                        "description": "Container load item",
+                        "type": "FCL",
+                        "dangerousGoods": false,
+                        "specialInstructions": "Handle with care",
+                        "details": {
+                          "containerSize": "40ft",
+                          "containerType": "Standard"
+                        },
+                        "createdAt": "2023-05-15T14:00:00.000Z",
+                        "updatedAt": "2023-05-15T14:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missing_type": {
+                    "value": {
+                      "success": false,
+                      "message": "Type is required"
+                    }
+                  },
+                  "missing_details": {
+                    "value": {
+                      "success": false,
+                      "message": "Details are required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shipment or load not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "shipment_not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment with ID 60d5f8b8a9aa7a1234567890 not found"
+                    }
+                  },
+                  "load_not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Shipment Load with ID 60d5f8b8a9aa7a1234567894 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/loads/{loadId}/items/{itemId}": {
+      "get": {
+        "tags": ["LoadItems"],
+        "summary": "Get a load item by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Load Item ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Load item found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoadItem"
+                    }
+                  }
+                },
+                "examples": {
+                  "item": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567896",
+                        "shipmentLoadId": "60d5f8b8a9aa7a1234567894",
+                        "loadId": "60d5f8b8a9aa7a1234567894",
+                        "description": "Container load item",
+                        "quantity": 1,
+                        "weight": 15000,
+                        "volume": 67.2,
+                        "value": 250000,
+                        "hazardous": false,
+                        "type": "FCL",
+                        "details": {
+                          "containerSize": "40ft",
+                          "containerType": "Standard"
+                        },
+                        "createdAt": "2023-05-15T14:00:00.000Z",
+                        "updatedAt": "2023-05-15T14:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Load item not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Load item with ID 60d5f8b8a9aa7a1234567896 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["LoadItems"],
+        "summary": "Update a load item",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Load Item ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "volume": {
+                    "type": "number"
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "hazardous": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["FCL", "LCL", "RORO", "AIR"]
+                  },
+                  "details": {
+                    "type": "object"
+                  }
+                }
+              },
+              "examples": {
+                "update_item": {
+                  "value": {
+                    "description": "Updated FCL Container",
+                    "specialInstructions": "Updated handling instructions"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Load item updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoadItem"
+                    }
+                  }
+                },
+                "examples": {
+                  "updated": {
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "_id": "60d5f8b8a9aa7a1234567896",
+                        "shipmentLoadId": "60d5f8b8a9aa7a1234567894",
+                        "loadId": "60d5f8b8a9aa7a1234567894",
+                        "description": "Updated FCL Container",
+                        "specialInstructions": "Updated handling instructions",
+                        "quantity": 1,
+                        "weight": 15000,
+                        "volume": 67.2,
+                        "value": 250000,
+                        "hazardous": false,
+                        "type": "FCL",
+                        "details": {
+                          "containerSize": "40ft",
+                          "containerType": "Standard"
+                        },
+                        "createdAt": "2023-05-15T14:00:00.000Z",
+                        "updatedAt": "2023-05-15T15:00:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalid_data": {
+                    "value": {
+                      "success": false,
+                      "message": "Invalid input data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Load item not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Load item with ID 60d5f8b8a9aa7a1234567896 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["LoadItems"],
+        "summary": "Delete a load item",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shipmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment ID"
+          },
+          {
+            "in": "path",
+            "name": "loadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Shipment Load ID"
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Load Item ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Load item deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "deleted": {
+                    "value": {
+                      "success": true,
+                      "message": "Load item deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "success": false,
+                      "message": "Authentication token is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Load item not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "not_found": {
+                    "value": {
+                      "success": false,
+                      "message": "Load item with ID 60d5f8b8a9aa7a1234567896 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
